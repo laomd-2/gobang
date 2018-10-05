@@ -22,10 +22,14 @@ class AI:
 
     def _evaluate(self, i, j, who):
         score = 0
+        # 对手
         opposite = ChessBoard.get_opposite(who)
         p = point(i, j)
+        # 上下左右、左上、右上、左下、右下八个方向
         for direction in ChessBoard.up_half_direction + ChessBoard.down_half_direction:
+            # 方向上的四个位置的状态
             lines = [self.__chess_board.get_chess_at(*(p + direction * t)) for t in range(1, 5)]
+            # 计算该状态对应的数（状态代表一个四位三进制数）
             power = 1
             number = 0
             for x in reversed(lines):
@@ -37,6 +41,7 @@ class AI:
                     x = 0
                 number += x * power
                 power *= 3
+            # 状态对应的分数，预先设定
             score += self.__scores[number]
         return score
 
