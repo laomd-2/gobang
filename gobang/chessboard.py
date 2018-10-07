@@ -7,15 +7,20 @@ def point(x, y):
 
 class ChessBoard:
     EMPTY = 0
-    PLAYER = 1
-    COMPUTER = 2
+    FIRST = 1
+    SECOND = 2
 
     up_half_direction = (point(0, -1), point(-1, 0), point(-1, -1), point(-1, 1))
     down_half_direction = (point(0, 1), point(1, 0), point(1, 1), point(1, -1))
 
-    def __init__(self, n=15):
-        self.__chess_board = np.zeros((n, n), dtype=int)
-        self._last_drop = None
+    def __init__(self, chess_board):
+        self.__chess_board = chess_board
+
+    def set_chessboard(self, chess_board):
+        self.__chess_board = chess_board
+
+    def output(self, file):
+        np.savetxt(file, self.__chess_board.T, fmt='%d', delimiter=' ')
 
     def __str__(self):
         form = "%-3d"
@@ -39,10 +44,10 @@ class ChessBoard:
 
     @staticmethod
     def get_opposite(who):
-        if who == ChessBoard.PLAYER:
-            return ChessBoard.COMPUTER
+        if who == ChessBoard.FIRST:
+            return ChessBoard.SECOND
         else:
-            return ChessBoard.PLAYER
+            return ChessBoard.FIRST
 
     def get_chess_at(self, i, j):
         if 0 <= i < len(self) and 0 <= j < len(self):
