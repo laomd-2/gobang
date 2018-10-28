@@ -21,7 +21,7 @@ istream& operator>>(istream& in, vector<T>& v) {
 }
 
 template <typename T>
-class Maze : vector<vector<T>> {
+class Maze : public vector<vector<T>> {
     bool is_valid_point(const point& p) const {
         size_t n = this->size();
         return p.first > -1 && p.first < n && p.second > -1 && p.second < n;
