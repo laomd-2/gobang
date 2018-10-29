@@ -19,7 +19,11 @@ def consumer():
 
 if __name__ == '__main__':
     wechat.log_in(msg_queue)
-    qq.log_in("965524991", sys.argv[1:], msg_queue)
+    if len(sys.argv) > 1:
+        qq_number = sys.argv[1]
+    else:
+        qq_number = None
+    qq.log_in(qq_number, sys.argv[2:], msg_queue)
     toaster = MyToastNotifier()
     threading.Thread(target=consumer).start()
     threading.Thread(target=wechat.main_loop).start()
