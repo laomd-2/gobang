@@ -76,7 +76,6 @@ class Judge:
         for i in range(48):
             x = self.players[turn].add_card_and_is_snatch(cards[i])
             if x != '' and x[1] == self.covert(self.main_num) and self.main_color is None:
-                print(turn, "snatch")
                 self.main_color = x[0]
                 if self.master is None:
                     self.master = turn
@@ -92,14 +91,12 @@ class Judge:
             turn += 1
             turn %= 4
         if self.main_color is None:
-            print("no one snatch")
             col = ['H', 'C', 'D', 'S']
             self.main_color = random.choice(col)
             for y in self.players:
                 y.set_main_color(self.main_color)
         if self.master is None:
             self.master = random.randint(0, 3)
-        print("origin bottom", cards[48:])
         self.bottom = self.players[self.master].add_left_cards(cards[48:])
         if len(self.bottom) != 6:
             self.false[self.master] += 1
@@ -256,6 +253,10 @@ class Judge:
             # 告诉所有玩家本轮出的牌
             for ii in range(4):
                 self.players[ii].finish_one_round(this_turn_cards, (ii + turn) % 4)
+            print(this_turn_cards)
+            print()
+            for p in self.players:
+                print(p.show_cards())
 
             max_index = self.get_max_index_and_add_points(this_turn_cards, turn, this_color)
             turn = max_index
@@ -304,16 +305,14 @@ if __name__ == '__main__':
     #
     # background = UI.Background(screen, setting)
     judge = Judge()
-    # while True:
-    for i in range(12):
-        time.sleep(0.5)
+    while True:
         judge.new_game()
-        print(judge.master, judge.main_color, judge.bottom)
         for p in judge.players:
             print(p.show_cards())
-        print()
-        # judge.run_game()
+        print(judge.master, judge.main_color)
+        judge.run_game()
         # background.initial()
 
-        # if judge.level[0] == 13 or judge.level[1] == 13:
-        #     break
+        if judge.level[0] == 13 or judge.level[1] == 13:
+            break
+    print(judge.level)
