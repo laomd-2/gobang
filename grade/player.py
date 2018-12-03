@@ -316,3 +316,6 @@ class Player:
             tmp_suit = self.__main_color
         card = (value, suit)
         bisect.insort(self.__used_cards[tmp_suit], card)
+
+    def set_role(self, role):
+        pass
