@@ -8,7 +8,6 @@
 #include <string>
 #include <set>
 #include <vector>
-#include <tsl/htrie_set.h>
 #include "board.h"
 #include "trie.h"
 using namespace std;
@@ -20,7 +19,7 @@ public:
     explicit BoggleSolver(string dictionary_file);
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
-    set<string> getAllWords(BoggleBoard board);
+    set<string> getAllWords(const BoggleBoard& board);
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
     // (You can assume the word contains only the uppercase letters A through Z.)
@@ -29,10 +28,10 @@ private:
     template <typename InputIter>
     void buildTrie(InputIter first, InputIter last);
 
-    void dfs(int i, int j, string prefix, TrieNode* node, set<string>& all_words);
+    void dfs(const BoggleBoard& board, int i, int j, string prefix, TrieNode* node,
+            set<string>& all_words, vector<vector<int>>&);
 
     TrieNode root;
-    BoggleBoard board;
 };
 
 

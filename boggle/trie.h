@@ -12,12 +12,14 @@
 using namespace std;
 
 class TrieNode {
-    map<char, TrieNode*> _children;
-
+    map<char, pair<bool, TrieNode*>> _children;
 public:
+
+    pair<bool, TrieNode*> get_child(char c);
     string keys() const;
     vector<TrieNode*> children() const;
-    TrieNode* insert(string::const_iterator first, string::const_iterator last);
+
+    bool insert(string::const_iterator first, string::const_iterator last);
 };
 
 void bfs(TrieNode* root);

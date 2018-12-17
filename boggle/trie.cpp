@@ -4,17 +4,24 @@
 
 #include "trie.h"
 
-TrieNode* TrieNode::insert(string::const_iterator first, string::const_iterator last) {
+bool TrieNode::insert(string::const_iterator first, string::const_iterator last) {
     if (first == last) {
-        return nullptr;
+        return false;
     }
     else {
-        TrieNode *child = _children[*first];
+        bool is_word;
+        TrieNode *child;
+        tie(is_word, child) = _children[*first];
         if (child == nullptr)
-            child = _children[*first] = new TrieNode;
-        if ((_children[*first] = child->insert(first + 1, last)) == nullptr)
+            child = new TrieNode;
+        bool flag = child->insert(first + 1, last);
+        is_word = is_word || !flag;
+        if (!flag) {
             delete child;
-        return this;
+            child = nullptr;
+        }
+        _children[*first] = make_pair(is_word, child);
+        return true;
     }
 }
 
@@ -28,8 +35,15 @@ string TrieNode::keys() const {
 vector<TrieNode *> TrieNode::children() const {
     vector<TrieNode *> res;
     for (auto& item: _children)
-        res.push_back(item.second);
+        res.push_back(item.second.second);
     return res;
+}
+
+pair<bool, TrieNode*> TrieNode::get_child(char c) {
+    if (_children.find(c) != _children.end())
+        return _children[c];
+    else
+        return make_pair(false, nullptr);
 }
 
 void bfs(TrieNode* root) {

@@ -29,14 +29,23 @@ BoggleBoard::BoggleBoard(string filename) : _board(4) {
         getline(fin, row);
 }
 
-int BoggleBoard::rows() {
+int BoggleBoard::rows() const {
     return 4;
 }
 
-int BoggleBoard::cols() {
+int BoggleBoard::cols() const {
     return 4;
 }
 
-char BoggleBoard::getLetter(int i, int j) {
+char BoggleBoard::getLetter(int i, int j) const {
     return _board[i][j];
+}
+
+string BoggleBoard::toString() const {
+    string res;
+    for (auto& s: _board) {
+        res += s + '\n';
+    }
+    res.pop_back();
+    return res;
 }

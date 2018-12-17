@@ -20,15 +20,16 @@ public:
     explicit BoggleBoard(string filename);
 
     // Returns the number of rows.
-    int rows();
+    int rows() const;
 
     // Returns the number of columns.
-    int cols();
+    int cols() const ;
 
     // Returns the letter in row i and column j.
     // (with 'Q' representing the two-letter sequence "Qu")
-    char getLetter(int i, int j);
+    char getLetter(int i, int j) const;
 
+    string toString() const;
 private:
     vector<string> _board;
 };
