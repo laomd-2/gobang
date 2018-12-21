@@ -1,6 +1,5 @@
 from win10toast import ToastNotifier
 from win32gui import *
-import random
 
 
 class MyToastNotifier(ToastNotifier):

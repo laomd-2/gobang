@@ -1,6 +1,6 @@
 import itchat
 from itchat.content import *
-from qqbot.utf8logger import INFO
+from qqbot.utf8logger import INFO, ERROR
 
 __msg_queue = None
 __all__ = ['main_loop', 'log_in']
@@ -9,15 +9,20 @@ __all__ = ['main_loop', 'log_in']
 @itchat.msg_register(TEXT)
 def friend_msg_event(msg):
     content = msg['Content']
-    friend = '微信“%s”' % msg['User']['NickName']
+    friend = msg['User']
+    try:
+        friend = friend['NickName']
+    except KeyError:
+        friend = friend['UserName']
+    friend = '“%s”' % friend
     INFO('来自 %s 的消息："%s"' % (friend, content))
-    __msg_queue.put((friend, content))
+    __msg_queue.put(("微信", friend, content))
 
 
 @itchat.msg_register(TEXT, isGroupChat=True)
 def group_msg_event(msg):
     content = msg['Content']
-    room = '微信群“%s”' % msg['User']['NickName']
+    room = '微信-群“%s”' % msg['User']['NickName']
     from_who = msg['ActualNickName']
     from_user = room + '[成员“%s”]' % (from_who if from_who else '我')
     INFO('来自 %s 的消息："%s"' % (from_user, content))
@@ -29,7 +34,11 @@ def group_msg_event(msg):
 
 
 def main_loop():
-    itchat.run()
+    while True:
+        try:
+            itchat.run()
+        except Exception as e:
+            ERROR(e)
 
 
 def log_in(msg_queue):

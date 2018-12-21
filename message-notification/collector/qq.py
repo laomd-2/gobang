@@ -1,5 +1,6 @@
 from qqbot import QQBotSlot
 from qqbot import _bot as bot
+from qqbot.utf8logger import ERROR
 
 __msg_queue = None
 
@@ -9,16 +10,18 @@ def onQQMessage(bot, contact, member, content):
     if contact.ctype == 'buddy' or '@ME' in content or '@全体成员' in content:
         content = content.strip("[@ME]全体成员 ")
         if content:
-            __msg_queue.put((contact.name + '/' + member.name, content))
+            __msg_queue.put(("QQ", "群" + contact.name + '/' + member.name, content))
 
 
-def log_in(user_qq, argv, msg_queue):
+def log_in(user_qq, msg_queue):
     global __msg_queue
     __msg_queue = msg_queue
-    if user_qq:
-        argv += ['-q', user_qq]
-    bot.Login(argv)
+    bot.Login(['-q', user_qq])
 
 
 def main_loop():
-    bot.Run()
+    while True:
+        try:
+            bot.Run()
+        except Exception as e:
+            ERROR(e)
