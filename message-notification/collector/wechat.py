@@ -1,4 +1,4 @@
-import itchat
+import itchat, time
 from itchat.content import *
 from qqbot.utf8logger import INFO, ERROR
 
@@ -49,6 +49,7 @@ def main_loop():
             itchat.run()
         except Exception as e:
             ERROR(e)
+            time.sleep(3)
 
 
 def log_in(msg_queue):

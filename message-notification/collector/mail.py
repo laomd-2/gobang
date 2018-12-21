@@ -28,6 +28,8 @@ def to_datetime(str_datetime):
 
 def main_loop():
     read = set()
+    filters = ['edx', 'github', 'noreply', 'docker team', 'intel', 'vuforia', 'welcome']
+    filters = [a.lower() for a in filters]
     while True:
         try:
             # 遍历未读邮件
@@ -41,9 +43,14 @@ def main_loop():
                     app = "邮箱(" + mail_info['to'][1] + ')'
                     who = mail_info['from'][0]
                     INFO('来自%s%s的邮件：%s' % (app, who, content))
-                    __msg_queue.put((app, who, content))
+                    for f in filters:
+                        if f in who.lower():
+                            server.add_flag(num, '\\Deleted')
+                            break
+                    else:
+                        __msg_queue.put((app, who, content))
                     read.add(mail_id)
-            time.sleep(3)
         except Exception as e:
-            raise e
             ERROR(str(type(e)) + str(e))
+        server.expunge()
+        time.sleep(3)

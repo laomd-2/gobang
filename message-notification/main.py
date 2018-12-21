@@ -2,20 +2,20 @@ import threading
 import sys
 import argparse
 from queue import Queue
-from notifier.MyToastNotifier import MyToastNotifier
+from notifier.MyToastNotifier import MyToastNotifier, ToastNotifier
 from collector import wechat, qq, mail
 
 msg_queue = Queue(100)
 
 
 def consumer():
-    ignore = 1
+    ignore = 0
     while True:
         title, who, content = msg_queue.get()
         if ignore > 0:
             ignore -= 1
             continue
-        toaster.show_toast(title + '  ' + who, content, duration=0.1, threaded=True)
+        toaster.show_toast(title + '  ' + who, content, duration=2)
 
 
 if __name__ == '__main__':
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--server', action="store", default='pop.exmail.qq.com')
     params = parser.parse_args(sys.argv[1:])
 
-    toaster = MyToastNotifier()
+    toaster = ToastNotifier()
     workers = [consumer]
 
     if params.wechat:

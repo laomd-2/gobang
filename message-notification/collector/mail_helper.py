@@ -23,6 +23,12 @@ class ReceiveMailDealer:
     def select(self, selector):
         return self.mail.select(selector)
 
+    def add_flag(self, num, flag):
+        self.mail.store(num, '+FLAGS', flag)
+
+    def expunge(self):
+        self.mail.expunge()
+
     # 返回所有未读的邮件列表（返回的是包含邮件序号的列表）
     def get_unread(self):
         untagged = self.mail.search(None, "Unseen")[1]

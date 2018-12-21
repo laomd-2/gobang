@@ -1,6 +1,7 @@
 from qqbot import QQBotSlot
 from qqbot import _bot as bot
 from qqbot.utf8logger import ERROR
+import time
 
 __msg_queue = None
 
@@ -27,3 +28,4 @@ def main_loop():
             bot.Run()
         except Exception as e:
             ERROR(e)
+            time.sleep(3)
