@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import imaplib, email
-import sys, datetime
+import datetime
 from email.header import decode_header
 from email.utils import parseaddr
 
@@ -10,10 +10,9 @@ from email.utils import parseaddr
 class ReceiveMailDealer:
 
     # 构造函数(用户名，密码，imap服务器)
-    def __init__(self, username, password, server, auto_download):
+    def __init__(self, username, password, server):
         self.mail = imaplib.IMAP4_SSL(server)
         self.mail.login(username, password)
-        self.auto_download = auto_download
         self.select("INBOX")
 
     # 返回所有文件夹
@@ -24,18 +23,10 @@ class ReceiveMailDealer:
     def select(self, selector):
         return self.mail.select(selector)
 
-    # 搜索邮件(参照RFC文档http://tools.ietf.org/html/rfc3501#page-49)
-    def search(self, charset, *criteria):
-        try:
-            return self.mail.search(charset, *criteria)
-        except Exception as e:
-            print(e.with_traceback(tb=sys.exc_info()[2]))
-            self.select("INBOX")
-            return self.mail.search(charset, *criteria)
-
     # 返回所有未读的邮件列表（返回的是包含邮件序号的列表）
     def get_unread(self):
-        return self.search(None, "Unseen")
+        untagged = self.mail.search(None, "Unseen")[1]
+        return untagged[0].split()
 
     # 以RFC822协议格式返回邮件详情的email对象
     def get_email_format(self, num):
@@ -82,32 +73,6 @@ class ReceiveMailDealer:
         utcstr = ' '.join(utcstr)
         return datetime.datetime.strptime(utcstr, '%a, %d %b %Y %H:%M:%S')
 
-    '''判断是否有附件，并解析（解析email对象的part）
-    返回列表（内容类型，大小，文件名，数据流）
-    '''
-
-    @staticmethod
-    def parse_attachment(message_part, save=False):
-        content_disposition = message_part.get("Content-Disposition", None)
-        if content_disposition:
-            dispositions = content_disposition.strip().split(";")
-            if content_disposition and dispositions[0].lower() == "attachment":
-                file_data = message_part.get_payload(decode=True)
-                attachment = {"content_type": message_part.get_content_type(), "size": len(file_data)}
-                de_name = decode_header(message_part.get_filename())[0]
-                name = de_name[0]
-                if de_name[1] is not None:
-                    name = de_name[0].decode(de_name[1])
-                attachment["name"] = name
-                attachment["data"] = file_data
-                # 保存附件
-                if save:
-                    fileobject = open(name, "wb")
-                    fileobject.write(file_data)
-                    fileobject.close()
-                return attachment
-        return None
-
     '''返回邮件的解析后信息部分
     返回列表包含（主题，纯文本正文部分，html的正文部分，发件人元组，收件人元组，附件列表）
     '''
@@ -115,22 +80,15 @@ class ReceiveMailDealer:
     def get_mail_info(self, num):
         msg = self.get_email_format(num)
         attachments = []
-        body = None
-        html = None
+        body = ''
+        html = ''
         for part in msg.walk():
-            attachment = self.parse_attachment(part)
-            if attachment:
-                attachments.append(attachment)
-            elif part.get_content_type() == "text/plain":
-                if body is None:
-                    body = ""
+            if part.get_content_type() == "text/plain":
                 body += part.get_payload()
             elif part.get_content_type() == "text/html":
-                if html is None:
-                    html = ""
                 html += part.get_payload()
         return {
-            'id': msg['Message-ID'],
+            'id': msg.get('Message-ID'),
             'subject': self.get_subject_content(msg),
             'body': body,
             'html': html,

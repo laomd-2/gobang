@@ -14,8 +14,7 @@ def log_in(msg_queue, **kwargs):
     user = kwargs['user']
     server_addr = kwargs.get('server', None) or 'pop.' + user.split('@')[1]
     password = kwargs.get('password', None) or input('password: ')
-    auto_dl = kwargs.get('auto_download', False)
-    server = ReceiveMailDealer(user, password, server_addr, auto_dl)
+    server = ReceiveMailDealer(user, password, server_addr)
 
 
 def to_datetime(str_datetime):
@@ -28,28 +27,23 @@ def to_datetime(str_datetime):
 
 
 def main_loop():
-    abstract = ['subject']
     read = set()
     while True:
         try:
             # 遍历未读邮件
-            for num in reversed(server.get_unread()[1][0].split()):
+            for num in reversed(server.get_unread()):
                 if num != '':
                     mail_info = server.get_mail_info(num)
-                    id = mail_info['id']
-                    if id in read:
+                    mail_id = mail_info['id']
+                    if mail_id in read:
                         break
-                    content = '\r\n'.join([mail_info[k].replace('\n', '') for k in abstract])
-                    if server.auto_download:
-                        # 遍历附件列表
-                        for attachment in mail_info['attachments']:
-                            with open(attachment['name'], 'wb') as fileob:
-                                fileob.write(attachment['data'])
+                    content = mail_info['subject'].replace('\n', '')
                     app = "邮箱(" + mail_info['to'][1] + ')'
                     who = mail_info['from'][0]
                     INFO('来自%s%s的邮件：%s' % (app, who, content))
                     __msg_queue.put((app, who, content))
-                    read.add(id)
+                    read.add(mail_id)
             time.sleep(3)
         except Exception as e:
+            raise e
             ERROR(str(type(e)) + str(e))

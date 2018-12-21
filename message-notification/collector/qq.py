@@ -7,7 +7,9 @@ __msg_queue = None
 
 @QQBotSlot
 def onQQMessage(bot, contact, member, content):
-    if contact.ctype == 'buddy' or '@ME' in content or '@全体成员' in content:
+    if bot.isMe(contact, member):
+        return
+    if contact.ctype != 'buddy' and ('@ME' in content or '@全体成员' in content):
         content = content.strip("[@ME]全体成员 ")
         if content:
             __msg_queue.put(("QQ", "群" + contact.name + '/' + member.name, content))

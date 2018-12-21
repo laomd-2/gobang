@@ -6,17 +6,26 @@ __msg_queue = None
 __all__ = ['main_loop', 'log_in']
 
 
+def is_me(msg):
+    me = itchat.originInstance.loginInfo['User']
+    return msg['FromUserName'] == me['UserName']
+
+
 @itchat.msg_register(TEXT)
 def friend_msg_event(msg):
     content = msg['Content']
     friend = msg['User']
+    friend_name = friend['UserName']
     try:
-        friend = friend['NickName']
+        friend_name = friend['NickName']
+        friend_name = friend['RemarkName']
     except KeyError:
-        friend = friend['UserName']
-    friend = '“%s”' % friend
-    INFO('来自 %s 的消息："%s"' % (friend, content))
-    __msg_queue.put(("微信", friend, content))
+        pass
+    friend_name = '“%s”' % friend_name
+    INFO('来自 %s 的消息："%s"' % (friend_name, content))
+    if is_me(msg):
+        return
+    __msg_queue.put(("微信", friend_name, content))
 
 
 @itchat.msg_register(TEXT, isGroupChat=True)
@@ -26,11 +35,12 @@ def group_msg_event(msg):
     from_who = msg['ActualNickName']
     from_user = room + '[成员“%s”]' % (from_who if from_who else '我')
     INFO('来自 %s 的消息："%s"' % (from_user, content))
-    if from_who:
-        if '@ME' in content or '@所有人' in content:
-            content = content.strip("[@ME]所有人 ")
-            if content:
-                __msg_queue.put((room + from_user, content))
+    if is_me(msg):
+        return
+    if msg.IsAt:
+        content = content.strip("[@ME]所有人 ")
+        if content:
+            __msg_queue.put((room + from_user, content))
 
 
 def main_loop():
